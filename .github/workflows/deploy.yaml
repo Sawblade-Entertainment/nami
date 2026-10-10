@@ -22,14 +22,23 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # Install MkDocs and deploy to GitHub Pages
+      # Install MkDocs and deploy to GitHub Page
       - name: Install MkDocs
         run: pip install mkdocs mkdocs-material
-
-      - name: Deploy MkDocs to GitHub Pages
-        run: mkdocs gh-deploy --force
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build MkDocs
+        run: mkdocs build
+      
+      # Upload the built site for deployment
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: 'site'
+      
+      # Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
 
       # Set up Rokit toolset
       - name: Setup Rojo/Wally
