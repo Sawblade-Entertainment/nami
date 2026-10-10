@@ -51,6 +51,8 @@ export type WaterSurface = {
 	pointSplash: (self: WaterSurface, z: number, x: number, y: number) -> (),
 	destroy: (self: WaterSurface) -> (),
 	worldPositionToMesh: (self: WaterSurface, z: number, x: number) -> (number, number),
+	positionToMesh: (self: WaterSurface, z: number, x: number) -> (number, number),
+	shiftField: (self: WaterSurface, dx: number, dz: number) -> (),
 
 	_computeLaplacian: (self: WaterSurface) -> (),
 	_computeBlurBuffer: (self: WaterSurface) -> NumberGrid,
@@ -197,9 +199,9 @@ function Nami:step(deltaTime: number)
 		editableMesh:SetPosition(
 			vertex,
 			Vector3.new(
-				x * meshXSpacing  - self.LengthX / 2,
+				(x - 1) * meshXSpacing  - self.LengthX / 2,
 				meshField[index],
-				z * meshZSpacing  - self.LengthZ / 2
+				(z - 1) * meshZSpacing  - self.LengthZ / 2
 			)
 		)
 	end
@@ -222,14 +224,65 @@ function Nami:heightAt(relativeZ: number, relativeX: number): number
 end
 
 function Nami:worldPositionToMesh(z: number, x: number): (number, number)
-	local relativePos: Vector3 = self.meshPart.CFrame:PointToObjectSpace(Vector3.new(x + self.LengthX / 2,0,z + self.LengthZ / 2))
+	local relativePos: Vector3 = self.meshPart.CFrame:PointToObjectSpace(Vector3.new(x, 0, z))
 	local rz = relativePos.Z
 	local rx = relativePos.X
 
-	local pz = math.round(rz*self.VertsPerStud)
-	local px = math.round(rx*self.VertsPerStud)
+	local pz = math.round((rz + self.LengthZ / 2) * self.VertsPerStud) + 1
+	local px = math.round((rx + self.LengthX / 2) * self.VertsPerStud) + 1
 	return pz, px
 
+end
+
+function Nami:shiftField(dx: number, dz: number, rotationDelta: number)
+	local physicsSizeX = self.physicsSizeX :: number
+	local physicsSizeZ = self.physicsSizeZ :: number
+	local spacing = self.physicsGridSpacing :: number
+
+	-- 1. Handle Translation (Advection)
+	local relativeDelta = self.meshPart.CFrame:VectorToObjectSpace(Vector3.new(dx, 0, dz))
+	local vx = relativeDelta.X / spacing
+	local vz = relativeDelta.Z / spacing
+
+	-- 2. Handle Rotation (Field Rotation)
+	-- We only need to rotate if there was an actual change in orientation
+	local doRotate = math.abs(rotationDelta) > 0.001
+
+	local function transform(field: NumberGrid): NumberGrid
+		local nextField = table.create(physicsSizeX * physicsSizeZ)
+		
+		local cosR = math.cos(rotationDelta)
+		local sinR = math.sin(rotationDelta)
+
+		for x = 1, physicsSizeX do
+			for z = 1, physicsSizeZ do
+				-- Center coordinates for rotation
+				local cx = x - (physicsSizeX + 1) / 2
+				local cz = z - (physicsSizeZ + 1) / 2
+				
+				-- Rotate coordinates
+				local rotX = cx * cosR + cz * sinR
+				local rotZ = -cx * sinR + cz * cosR
+				
+				-- Add translation (floating point) and convert to index
+				local oldX = math.round(rotX + (physicsSizeX + 1) / 2 + vx)
+				local oldZ = math.round(rotZ + (physicsSizeZ + 1) / 2 + vz)
+
+				local targetIdx = (x - 1) * physicsSizeZ + z
+				if oldX >= 1 and oldX <= physicsSizeX and oldZ >= 1 and oldZ <= physicsSizeZ then
+					nextField[targetIdx] = field[(oldX - 1) * physicsSizeZ + oldZ]
+				else
+					nextField[targetIdx] = 0
+				end
+			end
+		end
+		return nextField
+	end
+
+	if vx == 0 and vz == 0 and not doRotate then return end
+
+	self.physicsField = transform(self.physicsField :: NumberGrid)
+	self.previousPhysicsField = transform(self.previousPhysicsField :: NumberGrid)
 end
 
 -- Displaces a single point on the surface. May cause choppier waves.
