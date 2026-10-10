@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+    tags:
+      - 'v*'
 
 permissions:
   contents: read
@@ -93,6 +95,7 @@ jobs:
           WALLY_TOKEN: ${{ secrets.WALLY_TOKEN }}
 
       - name: Create Release
+        if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v3
         with:
           files: ./release/Nami.rbxm
