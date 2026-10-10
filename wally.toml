@@ -1,6 +1,6 @@
 [package]
-name = "icey-berg/nami"
-description = "Realtime water surface physics for roblox"
+name = "sawblade-ent/nami"
+description = "Realtime water surface physics for roblox (forked with world rotational and positional mechanics)"
 license = "MIT"
 version = "0.1.0"
 registry = "https://github.com/UpliftGames/wally-index"
