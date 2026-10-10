@@ -15,7 +15,12 @@ jobs:
       # Set up Python for MkDocs
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.11'- name: Configure Git
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       # Install MkDocs and deploy to GitHub Pages
       - name: Install MkDocs
