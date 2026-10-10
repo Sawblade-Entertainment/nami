@@ -72,9 +72,12 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Set up Rojo and Wally
+      - name: Install rokit
         run: |
           curl -sSf https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
+          
+      - name: Setup rokit
+        run: |
           rokit install
 
       - name: Publish to Wally
