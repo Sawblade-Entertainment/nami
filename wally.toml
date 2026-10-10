@@ -1,10 +1,10 @@
 [package]
-name = "sawblade-ent/nami"
+name = "vibeonline/nami"
 description = "Realtime water surface physics for roblox (forked with world rotational and positional mechanics)"
 license = "MIT"
-version = "0.1.0"
+version = "0.1.1"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
-exclude = ["rokit.toml"]
+exclude = ["rokit.toml","docs","site","mkdocs.yml"]
 
 [dependencies]
