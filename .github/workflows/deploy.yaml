@@ -24,11 +24,11 @@ jobs:
       - name: Deploy MkDocs to GitHub Pages
         run: mkdocs gh-deploy --force
 
-      # Set up Rojo for building
-      - name: Setup Rojo
-        uses: rojo-rbx/setup-rojo@v0
-        with:
-          version: latest
+      # Set up Rokit toolset
+      - name: Setup Rojo/Wally
+        run: |
+          curl -sSf https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
+          rokit install
 
       - name: Build with Rojo
         run: rojo build --output Nami.rbxm
@@ -41,12 +41,6 @@ jobs:
           files: Nami.rbxm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Set up Wally and publish package
-      - name: Setup Wally
-        uses: UpliftGames/setup-wally@v0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to Wally
         run: wally publish
