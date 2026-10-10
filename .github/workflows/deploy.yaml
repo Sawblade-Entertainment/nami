@@ -86,7 +86,9 @@ jobs:
         run: rokit install --no-trust-check
 
       - name: Publish to Wally
-        run: wally publish
+        run: |
+          wally login --token=$WALLY_TOKEN
+          wally publish
         env:
           WALLY_TOKEN: ${{ secrets.WALLY_TOKEN }}
 
