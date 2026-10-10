@@ -72,11 +72,15 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Install Rokit
+      - name: Setup Rokit
         run: |
           curl -sSf https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
           echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
           export PATH="$HOME/.rokit/bin:$PATH"
+          rokit --version
+      
+      - name: Install Rokit
+        run: |
           rokit install
 
       - name: Publish to Wally
