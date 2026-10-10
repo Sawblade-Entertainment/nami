@@ -77,7 +77,7 @@ jobs:
           curl -sSf https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
           echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
           export PATH="$HOME/.rokit/bin:$PATH"
-          rokit --version
+          rokit install
 
       - name: Publish to Wally
         run: wally publish
