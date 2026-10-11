@@ -21,11 +21,11 @@ export type WaterSurface = {
 	Damping: number,
 	Sigma: number,
 
-	_accumulatedDt: number,
+	accumulatedDt: number,
 
-	_initialised: boolean,
+	initialised: boolean,
 
-	_destroyed: boolean,
+	destroyed: boolean,
 
 	meshPart: MeshPart?,
 	editableMesh: EditableMesh?,
@@ -54,13 +54,13 @@ export type WaterSurface = {
 	destroy: (self: WaterSurface) -> (),
 	worldPositionToMesh: (self: WaterSurface, z: number, x: number) -> (number, number),
 	positionToMesh: (self: WaterSurface, z: number, x: number) -> (number, number),
-	shiftField: (self: WaterSurface, dx: number, dz: number) -> (),
+	shiftField: (self: WaterSurface, dx: number, dz: number, dr: number) -> (),
 
-	_computeLaplacian: (self: WaterSurface) -> (),
-	_computeBlurBuffer: (self: WaterSurface) -> NumberGrid,
-	_stepField: (self: WaterSurface, dt: number) -> (),
-	_verifyCFL: (self: WaterSurface) -> boolean,
-	_assertAlive: (self: WaterSurface) -> (),
+	computeLaplacian: (self: WaterSurface) -> (),
+	computeBlurBuffer: (self: WaterSurface) -> NumberGrid,
+	stepField: (self: WaterSurface, dt: number) -> (),
+	verifyCFL: (self: WaterSurface) -> boolean,
+	assertAlive: (self: WaterSurface) -> (),
 }
 
 function Nami.create(
@@ -80,17 +80,16 @@ function Nami.create(
 		TimeStep = timeStep,
 		Damping = damping,
 		Sigma = blurSigma,
-		_accumulatedDt = 0,
-		_initialised = false,
-		_destroyed = false
+		accumulatedDt = 0,
+		initialised = false,
+		destroyed = false,
 	}, Nami) :: any
 
 	return self :: WaterSurface
 end
 
--- MUST call before using any other function
 function Nami:initialise(parent: Instance)
-	self._initialised = true
+	self.initialised = true
 	local editableMesh = AssetService:CreateEditableMesh()
 
 	local xVerts = math.floor(self.LengthX * self.VertsPerStud) + 1
@@ -109,9 +108,7 @@ function Nami:initialise(parent: Instance)
 		local worldX = ((x - 1) * xSpacing) - self.LengthX / 2
 		local worldZ = ((z - 1) * zSpacing) - self.LengthZ / 2
 
-		local vertexId = editableMesh:AddVertex(
-			Vector3.new(worldX, 0, worldZ)
-		)
+		local vertexId = editableMesh:AddVertex(Vector3.new(worldX, 0, worldZ))
 
 		vertexGrid[index] = vertexId
 		physicsField[index] = 0
@@ -120,26 +117,24 @@ function Nami:initialise(parent: Instance)
 	-- triangulate from vertices
 	for zi = 1, zVerts - 1 do
 		for xi = 1, xVerts - 1 do
-
-			local i = zi +(xi-1)*zVerts
+			local i = zi + (xi - 1) * zVerts
 
 			local v1 = vertexGrid[i]
-			local v2 = vertexGrid[i+zVerts]
-			local v3 = vertexGrid[i+1+zVerts]
-			local v4 = vertexGrid[i+1]
+			local v2 = vertexGrid[i + zVerts]
+			local v3 = vertexGrid[i + 1 + zVerts]
+			local v4 = vertexGrid[i + 1]
 
 			editableMesh:AddTriangle(v1, v3, v2)
 			editableMesh:AddTriangle(v1, v4, v3)
 		end
 	end
 
-	local meshPart = AssetService:CreateMeshPartAsync(
-		Content.fromObject(editableMesh)
-	)
+	local meshPart = AssetService:CreateMeshPartAsync(Content.fromObject(editableMesh))
 
 	meshPart.Anchored = true
 	meshPart.Parent = parent
 	meshPart.BrickColor = BrickColor.Blue()
+	meshPart.Material = Enum.Material.Glass
 
 	self.meshPart = meshPart
 	self.editableMesh = editableMesh
@@ -156,9 +151,9 @@ function Nami:initialise(parent: Instance)
 
 	self.physicsGridSpacing = xSpacing
 
-	self.blurKernels = Nami._computeBlurKernels(self.Sigma)
+	self.blurKernels = Nami.computeBlurKernels(self.Sigma)
 
-	if self:_verifyCFL() == false then
+	if self:verifyCFL() == false then
 		error("CFL Condition Unsatisfied")
 	else
 		print("CFL Condition Satisfied")
@@ -167,20 +162,20 @@ end
 
 -- Attach to RunService
 function Nami:step(deltaTime: number)
-	self:_assertAlive()
-	self:_assertInitialised()
+	self:assertAlive()
+	self:assertInitialised()
 
-	self._accumulatedDt = self._accumulatedDt + deltaTime
-	if self._accumulatedDt < self.TimeStep then
+	self.accumulatedDt = self.accumulatedDt + deltaTime
+	if self.accumulatedDt < self.TimeStep then
 		return false
 	end
 
-	self._accumulatedDt = 0
+	self.accumulatedDt = 0
 
-	self:_computeLaplacian()
-	self:_stepField(self.TimeStep) 
+	self:computeLaplacian()
+	self:stepField(self.TimeStep)
 
-	local meshField = self:_computeBlurBuffer()
+	local meshField = self:computeBlurBuffer()
 
 	local vertexGrid = self.vertexGrid :: VertexGrid
 	local editableMesh = self.editableMesh :: EditableMesh
@@ -190,20 +185,18 @@ function Nami:step(deltaTime: number)
 
 	self.blurBufferField = meshField
 
-	self:_computeDeltaFields()
-
+	self:computeDeltaFields()
 
 	for index, vertex in pairs(vertexGrid) do
-
 		local z = (index - 1) % self.physicsSizeZ + 1
 		local x = math.ceil(index / self.physicsSizeZ)
 
 		editableMesh:SetPosition(
 			vertex,
 			Vector3.new(
-				(x - 1) * meshXSpacing  - self.LengthX / 2,
+				(x - 1) * meshXSpacing - self.LengthX / 2,
 				meshField[index],
-				(z - 1) * meshZSpacing  - self.LengthZ / 2
+				(z - 1) * meshZSpacing - self.LengthZ / 2
 			)
 		)
 	end
@@ -211,18 +204,15 @@ function Nami:step(deltaTime: number)
 	return true
 end
 
-
 function Nami:normalAt(relativeZ: number, relativeX: number): Vector3
-	local i = relativeZ +(relativeX-1)*self.physicsSizeZ
-	local vec = Vector3.new(self.dhdx[i],1,self.dhdz[i])
+	local i = relativeZ + (relativeX - 1) * self.physicsSizeZ
+	local vec = Vector3.new(self.dhdx[i], 1, self.dhdz[i])
 
 	return vec / vec.Magnitude
 end
 
 function Nami:heightAt(relativeZ: number, relativeX: number): number
-
-
-	return self.blurBufferField[relativeZ +(relativeX-1)*self.physicsSizeZ]
+	return self.blurBufferField[relativeZ + (relativeX - 1) * self.physicsSizeZ]
 end
 
 function Nami:worldPositionToMesh(z: number, x: number): (number, number)
@@ -233,7 +223,6 @@ function Nami:worldPositionToMesh(z: number, x: number): (number, number)
 	local pz = math.round((rz + self.LengthZ / 2) * self.VertsPerStud) + 1
 	local px = math.round((rx + self.LengthX / 2) * self.VertsPerStud) + 1
 	return pz, px
-
 end
 
 function Nami:shiftField(dx: number, dz: number, rotationDelta: number)
@@ -252,7 +241,7 @@ function Nami:shiftField(dx: number, dz: number, rotationDelta: number)
 
 	local function transform(field: NumberGrid): NumberGrid
 		local nextField = table.create(physicsSizeX * physicsSizeZ)
-		
+
 		local cosR = math.cos(rotationDelta)
 		local sinR = math.sin(rotationDelta)
 
@@ -261,11 +250,11 @@ function Nami:shiftField(dx: number, dz: number, rotationDelta: number)
 				-- Center coordinates for rotation
 				local cx = x - (physicsSizeX + 1) / 2
 				local cz = z - (physicsSizeZ + 1) / 2
-				
+
 				-- Rotate coordinates
 				local rotX = cx * cosR + cz * sinR
 				local rotZ = -cx * sinR + cz * cosR
-				
+
 				-- Add translation (floating point) and convert to index
 				local oldX = math.round(rotX + (physicsSizeX + 1) / 2 + vx)
 				local oldZ = math.round(rotZ + (physicsSizeZ + 1) / 2 + vz)
@@ -281,7 +270,9 @@ function Nami:shiftField(dx: number, dz: number, rotationDelta: number)
 		return nextField
 	end
 
-	if vx == 0 and vz == 0 and not doRotate then return end
+	if vx == 0 and vz == 0 and not doRotate then
+		return
+	end
 
 	self.physicsField = transform(self.physicsField :: NumberGrid)
 	self.previousPhysicsField = transform(self.previousPhysicsField :: NumberGrid)
@@ -295,18 +286,17 @@ function Nami:pointSplash(z: number, x: number, y: number)
 
 	local field = self.physicsField :: NumberGrid
 
-
-	local i = z +(x-1)*self.physicsSizeZ
+	local i = z + (x - 1) * self.physicsSizeZ
 	field[i] = y
 end
 
 function Nami:destroy()
-	Nami:_assertAlive()
+	Nami:assertAlive()
 	self.meshPart:Destroy()
-	self._destroyed = true
+	self.destroyed = true
 end
 
-function Nami:_computeLaplacian()
+function Nami:computeLaplacian()
 	local field = self.physicsField :: NumberGrid
 
 	local physicsSizeX = self.physicsSizeX :: number
@@ -326,14 +316,13 @@ function Nami:_computeLaplacian()
 
 		local center = field[index]
 
-		laplacian[index] =
-			(xp + xm + zp + zm - 4 * center) / (spacing ^ 2)
+		laplacian[index] = (xp + xm + zp + zm - 4 * center) / (spacing ^ 2)
 	end
 
 	self.laplacian = laplacian
 end
 
-function Nami._computeBlurKernels(sigma: number)
+function Nami.computeBlurKernels(sigma: number)
 	local kernel = {}
 	local sum = 0
 
@@ -354,7 +343,7 @@ function Nami._computeBlurKernels(sigma: number)
 	return kernel
 end
 
-function Nami:_computeDeltaFields()
+function Nami:computeDeltaFields()
 	local blurredField = self.blurBufferField :: NumberGrid
 
 	local physicsSizeX = self.physicsSizeX :: number
@@ -368,30 +357,26 @@ function Nami:_computeDeltaFields()
 		local z = (index - 1) % physicsSizeZ + 1
 
 		local xm = blurredField[if index > physicsSizeZ then index - physicsSizeZ else index]
-		local xp = blurredField[if index <= physicsSizeX * physicsSizeZ - physicsSizeZ then index + physicsSizeZ else index]
+		local xp =
+			blurredField[if index <= physicsSizeX * physicsSizeZ - physicsSizeZ then index + physicsSizeZ else index]
 
 		local zm = blurredField[if z > 1 then index - 1 else index]
 		local zp = blurredField[if z < physicsSizeZ then index + 1 else index]
-
-		local center = blurredField[index]
 
 		dhdx[index] = (xp - xm) / (2 * spacing)
 		dhdz[index] = (zp - zm) / (2 * spacing)
 	end
 
-
-
 	self.dhdx = dhdx
 	self.dhdz = dhdz
 end
 
-function Nami:_computeBlurBuffer()
+function Nami:computeBlurBuffer()
 	local field = self.physicsField
 	local kernel = self.blurKernels
 
 	local width = self.physicsSizeX
 	local lengthZ = self.physicsSizeZ
-
 
 	-- horizontal pass
 	local temp = table.create(width * lengthZ)
@@ -404,15 +389,13 @@ function Nami:_computeBlurBuffer()
 			local x4 = math.clamp(x + 1, 1, width)
 			local x5 = math.clamp(x + 2, 1, width)
 
-			local index =
-				(x - 1) * lengthZ + z
+			local index = (x - 1) * lengthZ + z
 
-			temp[index] =
-				kernel[1] * field[(x1 - 1) * lengthZ + z] +
-				kernel[2] * field[(x2 - 1) * lengthZ + z] +
-				kernel[3] * field[(x3 - 1) * lengthZ + z] +
-				kernel[4] * field[(x4 - 1) * lengthZ + z] +
-				kernel[5] * field[(x5 - 1) * lengthZ + z]
+			temp[index] = kernel[1] * field[(x1 - 1) * lengthZ + z]
+				+ kernel[2] * field[(x2 - 1) * lengthZ + z]
+				+ kernel[3] * field[(x3 - 1) * lengthZ + z]
+				+ kernel[4] * field[(x4 - 1) * lengthZ + z]
+				+ kernel[5] * field[(x5 - 1) * lengthZ + z]
 		end
 	end
 
@@ -427,22 +410,20 @@ function Nami:_computeBlurBuffer()
 			local z4 = math.clamp(z + 1, 1, lengthZ)
 			local z5 = math.clamp(z + 2, 1, lengthZ)
 
-			local index =
-				(x - 1) * lengthZ + z
+			local index = (x - 1) * lengthZ + z
 
-			blurBuffer[index] =
-				kernel[1] * temp[(x - 1) * lengthZ + z1] +
-				kernel[2] * temp[(x - 1) * lengthZ + z2] +
-				kernel[3] * temp[(x - 1) * lengthZ + z3] +
-				kernel[4] * temp[(x - 1) * lengthZ + z4] +
-				kernel[5] * temp[(x - 1) * lengthZ + z5]
+			blurBuffer[index] = kernel[1] * temp[(x - 1) * lengthZ + z1]
+				+ kernel[2] * temp[(x - 1) * lengthZ + z2]
+				+ kernel[3] * temp[(x - 1) * lengthZ + z3]
+				+ kernel[4] * temp[(x - 1) * lengthZ + z4]
+				+ kernel[5] * temp[(x - 1) * lengthZ + z5]
 		end
 	end
 
 	return blurBuffer
 end
--- does rewrite state buffers
-function Nami:_stepField(dt: number)
+
+function Nami:stepField(dt: number)
 	local curr = self.physicsField :: NumberGrid
 	local prev = self.previousPhysicsField :: NumberGrid
 	local laplacian = self.laplacian :: NumberGrid
@@ -453,33 +434,27 @@ function Nami:_stepField(dt: number)
 	local nextField: NumberGrid = {}
 
 	for index = 1, physicsSizeX * physicsSizeZ do
-		local uNext =
-			(2 * curr[index])
-		- prev[index]
-			+ (self.WaveSpeed ^ 2)
-			* (dt * dt)
-			* laplacian[index]
+		local uNext = (2 * curr[index]) - prev[index] + (self.WaveSpeed ^ 2) * (dt * dt) * laplacian[index]
 
-		-- damping for numerical stability
 		uNext *= self.Damping
 
 		nextField[index] = uNext
 	end
 
-	self.previousPhysicsField = curr	
+	self.previousPhysicsField = curr
 	self.physicsField = nextField
 end
 
-function Nami:_verifyCFL(): boolean
+function Nami:verifyCFL(): boolean
 	return ((self.WaveSpeed * self.TimeStep) / self.physicsGridSpacing) < 1 / math.sqrt(2)
 end
 
-function Nami:_assertAlive()
-	assert(not self._destroyed, "Nami instance is already destroyed")
+function Nami:assertAlive()
+	assert(not self.destroyed, "Nami instance is already destroyed")
 end
 
-function Nami:_assertInitialised()
-	assert(self._initialised, "Please initialise Nami first")
+function Nami:assertInitialised()
+	assert(self.initialised, "Please initialise Nami first")
 end
 
 return Nami
