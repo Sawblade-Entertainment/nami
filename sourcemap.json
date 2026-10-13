@@ -1,1 +1,1 @@
-{"name":"Nami","className":"ModuleScript","filePaths":["src/init.luau","default.project.json"]}
+{"name":"Nami","className":"ModuleScript","filePaths":["src/init.luau","default.project.json"],"children":[{"name":"AmbientWaves","className":"ModuleScript","filePaths":["src/AmbientWaves.luau"]},{"name":"Ring","className":"ModuleScript","filePaths":["src/Ring.luau"]}]}
