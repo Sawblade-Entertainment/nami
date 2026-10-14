@@ -1,17 +1,7 @@
 # Installation
 
 Place the `Nami` ModuleScript somewhere accessible and require it:
-```lua
-local Nami = require(path.To.Nami)
-```
-It is recommended that Nami is ran on the client.
-
-# Creating a Surface
-
-# Installation
-
-Place the `Nami` ModuleScript somewhere accessible and require it:
-```lua
+```luau
 local Nami = require(path.To.Nami)
 ```
 It is recommended that Nami is ran on the client.
@@ -24,7 +14,7 @@ Creates a new water surface instance.
 
 ### Syntax
 
-```lua
+```luau
 local surface = Nami.create({
     LengthX = 100,
     LengthZ = 100,
@@ -55,13 +45,13 @@ local surface = Nami.create({
 
 ### Returns
 
-```lua
+```luau
 WaterSurface
 ```
 
 ### Example
 
-```lua
+```luau
 local surface = Nami.create({
     LengthX = 100,
     LengthZ = 100,
@@ -103,7 +93,7 @@ Creates the EditableMesh, MeshPart, and simulation buffers.
 
 ### Syntax
 
-```lua
+```luau
 surface:initialise(parent)
 ```
 
@@ -115,6 +105,6 @@ surface:initialise(parent)
 
 ### Example
 
-```lua
+```luau
 surface:initialise(workspace)
 ```

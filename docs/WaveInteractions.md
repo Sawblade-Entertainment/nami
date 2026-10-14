@@ -9,7 +9,7 @@ Useful for impacts, raindrops, explosions, or object interaction.
 
 ### Syntax
 
-```lua
+```luau
 surface:pointSplash(z, x, height)
 ```
 
@@ -23,7 +23,7 @@ surface:pointSplash(z, x, height)
 
 ### Example
 
-```lua
+```luau
 surface:pointSplash(50, 50, 5)
 ```
 
@@ -37,7 +37,7 @@ Prefer this over `pointSplash` for most interactions to avoid "spiky" water.
 
 ### Syntax
 
-```lua
+```luau
 surface:splash(z, x, amplitude, radius)
 ```
 
@@ -52,6 +52,6 @@ surface:splash(z, x, amplitude, radius)
 
 ### Example
 
-```lua
+```luau
 surface:splash(50, 50, 2, 5)
 ```

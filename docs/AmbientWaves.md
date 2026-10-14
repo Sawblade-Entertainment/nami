@@ -10,7 +10,7 @@ Returns the `AmbientWaves` singleton.
 
 To define the background motion, use `setWaves()`. This accepts a list of wave configurations.
 
-```lua
+```luau
 local Ambient = Nami.getAmbientWaves()
 
 Ambient.setWaves({
@@ -33,7 +33,7 @@ Ambient.setWaves({
 
 The waves are time-dependent. You must update the internal clock every frame for the waves to move.
 
-```lua
+```luau
 RunService.Heartbeat:Connect(function()
     Ambient.setTime(tick())
 end)
@@ -43,7 +43,7 @@ end)
 
 The easiest way to apply ambient waves to a `WaterSurface` is via `setHeightOffset()`.
 
-```lua
+```luau
 local Ambient = Nami.getAmbientWaves()
 local surface = Nami.create({ ... })
 

@@ -8,7 +8,7 @@ Creates a new water ring instance.
 
 ### Syntax
 
-```lua
+```luau
 local ring = Nami.Ring.create(config, parent, sampler)
 ```
 
@@ -34,7 +34,7 @@ local ring = Nami.Ring.create(config, parent, sampler)
 
 ### Example
 
-```lua
+```luau
 local Ambient = Nami.getAmbientWaves()
 
 local ring = Nami.Ring.create({
@@ -54,7 +54,7 @@ Positions the ring and updates its vertex heights.
 
 ### Syntax
 
-```lua
+```luau
 ring:update(center, y)
 ```
 
@@ -67,7 +67,7 @@ ring:update(center, y)
 
 ### Example
 
-```lua
+```luau
 RunService.Heartbeat:Connect(function()
     ring:update(boat.Position, 0)
 end)
@@ -81,6 +81,6 @@ Cleans up the mesh and associated resources.
 
 ### Syntax
 
-```lua
+```luau
 ring:destroy()
 ```

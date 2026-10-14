@@ -1,7 +1,16 @@
 site_name: Nami
 theme:
-  name: gitbook
+  name: dracula
   katex_options: {}
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+      htmlmin_opts:
+        remove_comments: true
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -14,9 +23,6 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.snippets
-
-extra_css:
-  - stylesheets/pygments.css
 
 extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

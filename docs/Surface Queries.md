@@ -1,14 +1,12 @@
 # Surface Queries
 
-# Surface Queries
-
 ## surface:worldPositionToMesh()
 
 Converts a world-space position into mesh grid coordinates. All mesh related functions (`pointSplash`, `splash`, `normalAt`, `heightAt`, etc) take mesh grid coordinates. Use this function to convert world to mesh grid.
 
 ### Syntax
 
-```lua
+```luau
 local z, x = surface:worldPositionToMesh(worldPosition)
 ```
 
@@ -20,13 +18,13 @@ local z, x = surface:worldPositionToMesh(worldPosition)
 
 ### Returns
 
-```lua
+```luau
 (number, number) -- (z, x) grid coordinates.
 ```
 
 ### Example
 
-```lua
+```luau
 local z, x = surface:worldPositionToMesh(
     hitPosition
 )
@@ -44,7 +42,7 @@ Useful for buoyancy and object orientation.
 
 ### Syntax
 
-```lua
+```luau
 local z, x = surface:worldPositionToMesh(boat.Position)
 local normal = surface:normalAt(z, x)
 ```
@@ -58,13 +56,13 @@ local normal = surface:normalAt(z, x)
 
 ### Returns
 
-```lua
+```luau
 Vector3
 ```
 
 ### Example
 
-```lua
+```luau
 local normal = surface:normalAt(50, 50)
 ```
 
@@ -76,7 +74,7 @@ Returns the rendered height of the water surface at a grid coordinate.
 
 ### Syntax
 
-```lua
+```luau
 local height = surface:heightAt(meshZ, meshX)
 ```
 
@@ -89,13 +87,13 @@ local height = surface:heightAt(meshZ, meshX)
 
 ### Returns
 
-```lua
+```luau
 number
 ```
 
 ### Example
 
-```lua
+```luau
 local z, x = surface:worldPositionToMesh(boat.Position)
 local height = surface:heightAt(z, x)
 ```
@@ -108,7 +106,7 @@ Sets a function that adds additional height to the water during rendering. This 
 
 ### Syntax
 
-```lua
+```luau
 surface:setHeightOffset(fn)
 ```
 
@@ -120,7 +118,7 @@ surface:setHeightOffset(fn)
 
 ### Example
 
-```lua
+```luau
 surface:setHeightOffset(function(x, z)
     return math.sin(x * 0.1) * 2
 end)

@@ -1,7 +1,5 @@
 # Runtime
 
-# Runtime
-
 ## surface:step()
 
 Advances the simulation.
@@ -9,7 +7,7 @@ This should typically be called every frame from `RunService`.
 
 ### Syntax
 
-```lua
+```luau
 local didStep = surface:step(deltaTime)
 ```
 
@@ -21,7 +19,7 @@ local didStep = surface:step(deltaTime)
 
 ### Returns
 
-```lua
+```luau
 (boolean) -- Returns true if the simulation stepped and the mesh was updated.
 ```
 
@@ -29,7 +27,7 @@ local didStep = surface:step(deltaTime)
 
 ### Example
 
-```lua
+```luau
 RunService.Heartbeat:Connect(function(dt)
     surface:step(dt)
 end)
@@ -45,7 +43,7 @@ It uses bilinear sampling to ensure smooth motion even when movement is smaller 
 
 ### Syntax
 
-```lua
+```luau
 surface:shiftField(dx, dz, rotationDelta)
 ```
 
@@ -59,7 +57,7 @@ surface:shiftField(dx, dz, rotationDelta)
 
 ### Example
 
-```lua
+```luau
 -- If your MeshPart moved by some offset and rotation this frame:
 surface:shiftField(moveX, moveZ, rotY)
 ```
@@ -74,13 +72,13 @@ After calling this method, any further operations on the surface will throw an e
 
 ### Syntax
 
-```lua
+```luau
 surface:destroy()
 ```
 
 ### Example
 
-```lua
+```luau
 surface:step(0.016)
 
 surface:destroy()
