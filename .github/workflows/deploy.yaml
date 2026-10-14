@@ -22,7 +22,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install MkDocs
-        run: pip install mkdocs mkdocs-shadcn
+        run: pip install mkdocs mkdocs-gitbook
 
       - name: Build MkDocs
         run: mkdocs build
