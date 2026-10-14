@@ -1,6 +1,6 @@
 # Nami
-Realtime wave physics for Roblox. See releases for latest download. 
-[Documentation](https://sawblade-ent.github.io/nami-docs/)
+Realtime wave physics for Roblox. See releases for latest download.
+[Documentation](https://sawblade-entertainment.github.io/nami/)
 
 Download with wally:
 ```toml
