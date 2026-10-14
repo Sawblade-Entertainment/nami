@@ -1,21 +1,22 @@
 site_name: Nami
 theme:
-  name: shadcn
-  logo: assets/Icon.png
-  favicon: assets/Icon.png
+  name: gitbook
   katex_options: {}
 
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
-      pygments_lang_class: true
+      pygments_lang_class: false
       pygments_style: monokai
   - pymdownx.superfences
   - pymdownx.inlinehilite
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.snippets
+
+extra_css:
+  - stylesheets/pygments.css
 
 extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
