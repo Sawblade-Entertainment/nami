@@ -1,3 +1,6 @@
 # Build files
 *.rbxm
 *.rbxmx
+
+# Mkdocs site
+site/
