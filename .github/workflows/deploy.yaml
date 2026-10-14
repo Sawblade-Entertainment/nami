@@ -22,7 +22,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install MkDocs
-        run: pip install mkdocs mkdocs-dracula-theme mkdocs-minify-plugin
+        run: pip install mkdocs mkdocs-terminal mkdocs-minify-plugin
 
       - name: Build MkDocs
         run: mkdocs build

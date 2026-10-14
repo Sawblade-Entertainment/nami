@@ -1,6 +1,8 @@
 site_name: Nami
+
 theme:
-  name: dracula
+  name: terminal
+  palette: dark
   katex_options: {}
 
 plugins:
@@ -11,18 +13,6 @@ plugins:
       minify_css: true
       htmlmin_opts:
         remove_comments: true
-
-markdown_extensions:
-  - pymdownx.highlight:
-      anchor_linenums: true
-      line_spans: __span
-      pygments_lang_class: false
-      pygments_style: monokai
-  - pymdownx.superfences
-  - pymdownx.inlinehilite
-  - pymdownx.arithmatex:
-      generic: true
-  - pymdownx.snippets
 
 extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
