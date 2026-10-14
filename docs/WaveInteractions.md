@@ -29,14 +29,29 @@ surface:pointSplash(50, 50, 5)
 
 ---
 
-## surface:smoothSplash()
+## surface:splash()
 
 Creates a smooth Gaussian-shaped disturbance.
 
-> **Note:** This function is currently not implemented.
+Prefer this over `pointSplash` for most interactions to avoid "spiky" water.
 
 ### Syntax
 
 ```lua
-surface:smoothSplash()
+surface:splash(z, x, amplitude, radius)
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `z` | `number` | Grid Z coordinate. |
+| `x` | `number` | Grid X coordinate. |
+| `amplitude` | `number` | Height of the bump. |
+| `radius` | `number` | Radius of the disturbance in grid cells. |
+
+### Example
+
+```lua
+surface:splash(50, 50, 2, 5)
 ```

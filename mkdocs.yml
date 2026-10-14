@@ -1,30 +1,21 @@
 site_name: Nami
 theme:
+  name: shadcn
   logo: assets/Icon.png
   favicon: assets/Icon.png
-  name: material
-  palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: blue grey
-      toggle:
-        icon: material/weather-night
-
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: blue grey
-      toggle:
-        icon: material/weather-sunny
+  katex_options: {}
 
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
       pygments_lang_class: true
+      pygments_style: monokai
   - pymdownx.superfences
   - pymdownx.inlinehilite
   - pymdownx.arithmatex:
       generic: true
+  - pymdownx.snippets
 
 extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

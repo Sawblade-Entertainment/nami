@@ -8,6 +8,16 @@ It is recommended that Nami is ran on the client.
 
 # Creating a Surface
 
+# Installation
+
+Place the `Nami` ModuleScript somewhere accessible and require it:
+```lua
+local Nami = require(path.To.Nami)
+```
+It is recommended that Nami is ran on the client.
+
+# Creating a Surface
+
 ## Nami.create()
 
 Creates a new water surface instance.
@@ -15,28 +25,33 @@ Creates a new water surface instance.
 ### Syntax
 
 ```lua
-local surface = Nami.create(
-    lengthX,
-    lengthZ,
-    vertsPerStud,
-    waveSpeed,
-    timeStep,
-    damping,
-    blurSigma
-)
+local surface = Nami.create({
+    LengthX = 100,
+    LengthZ = 100,
+    VertsPerStud = 0.5,
+    WaveSpeed = 20,
+    TimeStep = 1 / 50,
+    Damping = 0.995,
+    Sigma = 1.1,
+    -- Optional:
+    MaxSubsteps = 4,
+    EdgeFadeCells = 6,
+})
 ```
 
 ### Parameters
 
 | Parameter | Type | Units | Description |
 |------------|--------|--------|-------------|
-| `lengthX` | `number` | Studs| Width of the water surface. |
-| `lengthZ` | `number` | Studs| Length of the water surface. |
-| `vertsPerStud` | `number` |Vertex per Stud | Vertex density used for rendering. |
-| `waveSpeed` | `number` |Studs per Second | Speed at which waves propagate. |
-| `timeStep` | `number` | Seconds| Fixed simulation timestep. |
-| `damping` | `number` |Dimensionless | Energy loss applied each simulation step. Values slightly below `1` are recommended. |
-| `blurSigma` | `number` |Dimensionless| Gaussian blur strength used for postprocessing. |
+| `LengthX` | `number` | Studs| Width of the water surface. |
+| `LengthZ` | `number` | Studs| Length of the water surface. |
+| `VertsPerStud` | `number` |Vertex per Stud | Vertex density used for rendering. |
+| `WaveSpeed` | `number` |Studs per Second | Speed at which waves propagate. |
+| `TimeStep` | `number` | Seconds| Fixed simulation timestep. |
+| `Damping` | `number` |Dimensionless | Energy loss applied each simulation step. Values slightly below `1` are recommended. |
+| `Sigma` | `number` |Dimensionless| Gaussian blur strength used for postprocessing. |
+| `MaxSubsteps` | `number` |Count (Optional) | Caps catch-up iterations after a frame hitch (default: `4`). |
+| `EdgeFadeCells` | `number` |Cells (Optional) | Width of the edge band that fades the wake and absorbs waves (default: `6`). |
 
 ### Returns
 
@@ -47,16 +62,23 @@ WaterSurface
 ### Example
 
 ```lua
-local surface = Nami.create(
-    100,
-    100,
-    0.5,
-    20,
-    1 / 50,
-    0.995,
-    1.1
-)
+local surface = Nami.create({
+    LengthX = 100,
+    LengthZ = 100,
+    VertsPerStud = 0.5,
+    WaveSpeed = 20,
+    TimeStep = 1 / 50,
+    Damping = 0.995,
+    Sigma = 1.1,
+})
 ```
+> **Note:** The timestep is expressed as `1 / physics FPS` for easy interpretation. This is the recommended approach.
+> Try to keep at or below 60.
+
+> **Note:** If the water looks spiky, the blur is too low. If the water lacks detail, the blur is too high.
+>
+---
+
 > **Note:** The timestep is expressed as `1 / physics FPS` for easy interpretation. This is the recommended approach.
 > Try to keep at or below 60.
 
