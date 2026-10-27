@@ -1,8 +1,9 @@
 [Package]
   Name = "vibeonline/nami"
   Description = "Realtime water surface physics for roblox (forked with world rotational and positional mechanics)"
-  Version = "0.1.4"
+  Version = "0.1.5"
   License = "MIT"
+  Website = "https://sawblade-entertainment.github.io/nami/"
 
 [Tools]
 StyLua = "JohnnyMorganz/StyLua@2.6.0"
