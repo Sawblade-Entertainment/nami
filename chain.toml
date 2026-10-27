@@ -6,7 +6,7 @@
   Website = "https://sawblade-entertainment.github.io/nami/"
 
 [Tools]
-StyLua = "JohnnyMorganz/StyLua@2.6.0"
-selene = "Kampfkarren/selene@0.32.0"
+  StyLua = "JohnnyMorganz/StyLua@2.6.0"
+  selene = "Kampfkarren/selene@0.32.0"
 
 [Packages]
